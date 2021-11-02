@@ -122,8 +122,7 @@ function App() {
       if (!checkerboardData[index] || !checkerboardData[index][index]) continue
       if (keep(checkerboardData[index][rightIncline--].style)) {
         if (++count === 5) {
-          alert(`${currentPlayer}赢了`)
-          return
+          return true
         }
       } else {
         count = 0
