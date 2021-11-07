@@ -134,6 +134,9 @@ function App() {
   const fall = (position: [number, number]) => {
     setBegin(false)
     const [x, y] = position
+    if (checkerboardData[y][x].style.opacity === Status.show) {
+      return
+    }
     checkerboardData[y][x].style = {
       ...checkerboardData[y][x].style,
       opacity: Status.show,
@@ -147,10 +150,12 @@ function App() {
   useEffect(() => {
     if (!begin) {
       if (judge()) {
-        alert(`${currentPlayer}赢了`)
         setBegin(true)
         setCurrentPlayer(Player.white)
         setCheckerboardData(genCheckerboardData())
+        setTimeout(() => {
+          alert(`${currentPlayer}赢了`)
+        })
       } else {
         setCurrentPlayer(
           currentPlayer === Player.white ? Player.black : Player.white
