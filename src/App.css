@@ -1,24 +1,13 @@
-body {
-  background-color: blanchedalmond;
-}
-.container {
-  margin: 20px auto;
-  position: relative;
-  width: 541px;
-}
-table {
-  border-collapse: collapse;
-  width: 541px;
-  height: 541px;
-}
-td {
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
   padding: 0;
-  border: 1px solid black;
+  margin: 0;
+  background-color: #D2B42C;
 }
-.piece {
-  width: 12px;
-  height: 12px;
-  border-radius: 100%;
-  position: absolute;
-  cursor: pointer;
+
+.swal-overlay:before{
+  height: 76%;
 }
