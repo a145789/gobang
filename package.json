@@ -8,7 +8,7 @@
     "deploy": "pnpm build && gh-pages -d dist"
   },
   "dependencies": {
-    "@palmerhq/radio-group": "^1.0.2",
+    "@headlessui/react": "^1.6.1",
     "add": "^2.0.6",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
