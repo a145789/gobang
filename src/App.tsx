@@ -1,8 +1,9 @@
-import { Fragment, useMemo, useState } from 'react'
-import { RadioGroup, Dialog, Transition } from '@headlessui/react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import './App.css'
-
-const { Label, Option } = RadioGroup
+import WeatherSunny16Regular from '@ricons/fluent/WeatherSunny16Regular'
+import WeatherMoon28Filled from '@ricons/fluent/WeatherMoon28Filled'
+import { Icon } from '@ricons/utils'
 
 const board = Array.from({ length: 12 })
 const piecesBoard = Array.from({ length: 13 })
@@ -32,6 +33,8 @@ const enum Status {
 }
 
 function App() {
+  const [isDark, setIsDark] = useState(false)
+
   const [pieces, setPieces] =
     useState<
       { top: number; left: number; y: number; x: number; bg: Piece }[][]
@@ -41,15 +44,19 @@ function App() {
   const [currentStatus, setCurrentStatus] = useState<Status>(Status.Begin)
   const [isOpen, setIsOpen] = useState(false)
 
+  const [transition, setTransition] = useTransition()
+
   function fail(y: number, x: number) {
     if (pieces[y][x].bg || currentStatus !== Status.Rest) {
       return
     }
     pieces[y][x].bg = currentPiece
-    setPieces(pieces.slice())
+    setTransition(() => setPieces(pieces.slice()))
     if (judge()) {
-      setIsOpen(true)
       setCurrentStatus(Status.Win)
+      setTimeout(() => {
+        setIsOpen(true)
+      }, 200)
       return
     }
     setCurrentPiece(currentPiece === Piece.Black ? Piece.White : Piece.Black)
@@ -123,7 +130,7 @@ function App() {
     setCurrentStatus(Status.Select)
   }
 
-  function Select(value: Piece) {
+  function choose(value: Piece) {
     setCurrentPiece(value)
     setCurrentStatus(Status.Rest)
   }
@@ -163,25 +170,21 @@ function App() {
 
       case Status.Select:
         return (
-          <>
-            <RadioGroup value={currentPiece} onChange={Select}>
-              <Label className="sr-only">请选择</Label>
-              <div className="space-y-2">
-                <Option
-                  value={Piece.Black}
-                  className="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
-                >
-                  <span className="text-#456">黑棋</span>
-                </Option>
-                <Option
-                  value={Piece.White}
-                  className="relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none"
-                >
-                  <span className="text-#456">白棋</span>
-                </Option>
-              </div>
-            </RadioGroup>
-          </>
+          <div className="flex items-center">
+            <div className="text-green-700 font-bold">选择先手：</div>
+            <div
+              onClick={() => choose(Piece.Black)}
+              className="relative flex cursor-pointer rounded-lg shadow-md bg-lime-600 text-#fff flex justify-center items-center w-50px leading-9 mr-2"
+            >
+              黑棋
+            </div>
+            <div
+              onClick={() => choose(Piece.White)}
+              className="relative flex cursor-pointer rounded-lg shadow-md bg-lime-600 text-#fff flex justify-center items-center w-50px leading-9"
+            >
+              白棋
+            </div>
+          </div>
         )
 
       case Status.Rest:
@@ -198,85 +201,69 @@ function App() {
   }, [currentStatus])
 
   const dialog = useMemo(() => {
-    return (
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          onClose={() => setIsOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed absolute bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed absolute overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      {currentPiece === Piece.Black ? '黑棋' : '白棋'}获胜！！！
-                    </p>
-                  </div>
-
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 mr-2"
-                      onClick={() => rest()}
-                    >
-                      重置
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      确定
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
+    return createPortal(
+      isOpen && (
+        <div className="fixed h-full w-full top-0 z-50 overflow-hidden">
+          <div className="absolute h-full w-full bg-gray-600" />
+          <div className="absolute h-full w-full flex pt-200px justify-center">
+            <div className="bg-#e4e1d1 dark:bg-#141e1b rounded-lg shadow-xl px-6 py-6 overflow-hidden w-200px h-140px">
+              <h3 className="text-#f0aa9d dark:text-#d1d5db text-center">
+                {currentPiece === Piece.Black ? '黑棋' : '白棋'}获胜
+              </h3>
+              <div className="mt-12 flex justify-around">
+                <div
+                  className="cursor-pointer bg-red-300 dark:bg-#444 text-light-50 w-60px h-40px dark:text-#eee flex justify-center items-center rounded-lg shadow-xl"
+                  onClick={rest}
+                >
+                  重置
+                </div>
+                <div
+                  className="cursor-pointer bg-red-300 dark:bg-#555 text-light-50 w-60px h-40px dark:text-#eee flex justify-center items-center rounded-lg shadow-xl"
+                  onClick={() => setIsOpen(false)}
+                >
+                  确定
+                </div>
+              </div>
             </div>
           </div>
-        </Dialog>
-      </Transition>
+        </div>
+      ),
+      document.body
     )
   }, [isOpen, currentPiece])
 
-  return (
-    <div className="w-full flex pt-130px flex-col items-center">
-      <div className="relative">
-        {pieces.map((item, yi) =>
-          item.map(({ top, left, bg }, xi) => (
-            <div
-              className={`w-14px h-14px rounded-full absolute ${bg}`}
-              key={xi}
-              style={{ top, left }}
-              onClick={() => fail(yi, xi)}
-            />
-          ))
-        )}
-        {table}
+  useEffect(() => {
+    document.body.classList.toggle('dark', isDark)
+  }, [isDark])
 
-        <div className="flex justify-center mt-4">{handle}</div>
-        {dialog}
+  return (
+    <div className="w-full h-full bg-#D2B42C dark:bg-#141e1b transition duration-700 relative">
+      <div
+        className="absolute top-10 right-10"
+        onClick={() => setIsDark(!isDark)}
+      >
+        <Icon size="36" color={isDark ? '#fff' : '#ddd '}>
+          {isDark ? <WeatherMoon28Filled /> : <WeatherSunny16Regular />}
+        </Icon>
+      </div>
+
+      <div className="w-full flex pt-130px flex-col items-center">
+        <div className="relative">
+          {pieces.map((item, yi) =>
+            item.map(({ top, left, bg }, xi) => (
+              <div
+                className={`w-14px h-14px rounded-full absolute ${bg}`}
+                key={xi}
+                style={{ top, left }}
+                onClick={() => fail(yi, xi)}
+              />
+            ))
+          )}
+          {table}
+
+          <div className="flex justify-center mt-4">{handle}</div>
+          {dialog}
+        </div>
       </div>
     </div>
   )
