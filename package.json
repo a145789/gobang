@@ -5,22 +5,24 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "deploy": "pnpm build && gh-pages -d dist"
+    "deploy": "pnpm build && gh-pages -d dist",
+    "taze": "taze -w"
   },
   "dependencies": {
     "@ricons/fluent": "^0.12.0",
     "@ricons/utils": "^0.1.6",
     "add": "^2.0.6",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "unocss": "^0.42.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.9",
-    "@types/react-dom": "^18.0.3",
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5",
     "@vitejs/plugin-react": "^1.3.2",
     "gh-pages": "4.0.0",
-    "typescript": "^4.6.4",
-    "vite": "^2.9.8"
+    "taze": "^0.7.4",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.13"
   }
 }

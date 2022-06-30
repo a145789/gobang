@@ -44,7 +44,7 @@ function App() {
   const [currentStatus, setCurrentStatus] = useState<Status>(Status.Begin)
   const [isOpen, setIsOpen] = useState(false)
 
-  const [transition, setTransition] = useTransition()
+  const [, setTransition] = useTransition()
 
   function fail(y: number, x: number) {
     if (pieces[y][x].bg || currentStatus !== Status.Rest) {
@@ -68,8 +68,6 @@ function App() {
       return
     }
     return have.some(({ y, x, bg }) => {
-      console.log(bg)
-
       let i = 0
       let dir = 1
       let yc = y
@@ -110,8 +108,6 @@ function App() {
         }
 
         if (pieces[yc]?.[xc]?.bg === bg) {
-          console.log(pieces[yc]?.[xc]?.bg, yc, xc, i, dir)
-
           if (++i === 4) {
             return true
           }
